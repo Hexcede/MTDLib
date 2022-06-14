@@ -22,6 +22,9 @@ namespace MTDLib
 	{
 		public static MTD Instance { get; private set; }
 		public static ConfigEntry<bool> disableAchievements;
+		public static ConfigEntry<bool> enableInvincibility;
+		public static ConfigEntry<bool> infiniteRerolls;
+		public static ConfigEntry<bool> allPowerupsRepeatable;
 		internal static ManualLogSource Log;
 
 		private UnityEvent onBattleStarted;
@@ -83,6 +86,9 @@ namespace MTDLib
 
 			// Config
 			disableAchievements = Config.Bind("General", "Disable Achievements", true, "Disable Steam achievements in the game.");
+			enableInvincibility = Config.Bind("General", "Enable invincibility", false, "Enable invincibility.");
+			infiniteRerolls = Config.Bind("General", "Infinite rerolls", true, "Allow you to reroll infinitely on any character.");
+			allPowerupsRepeatable = Config.Bind("General", "All powerups repeatable", true, "Make all powerups repeatable.");
 		}
 
 		private void Awake()
@@ -99,9 +105,12 @@ namespace MTDLib
 			onBattleStarted.AddListener(() => Log.LogInfo("Battle started!"));
 			onTitleScreen.AddListener(() => Log.LogInfo("On the title screen!"));
 
-			powerupsToLoad.Add(ScriptableObject.CreateInstance<Powerups.InvinciblePowerup>());
-			powerupsToLoad.Add(ScriptableObject.CreateInstance<Powerups.InfiniteRerollPowerup>());
-			powerupsToLoad.Add(ScriptableObject.CreateInstance<Powerups.AllPowerupsRepeatable>());
+			if (enableInvincibility.Value)
+				powerupsToLoad.Add(ScriptableObject.CreateInstance<Powerups.InvinciblePowerup>());
+			if (infiniteRerolls.Value)
+				powerupsToLoad.Add(ScriptableObject.CreateInstance<Powerups.InfiniteRerollPowerup>());
+			if (allPowerupsRepeatable.Value)
+				powerupsToLoad.Add(ScriptableObject.CreateInstance<Powerups.AllPowerupsRepeatable>());
 
 			onBattleReady.AddListener(() => {
 				// Loop over all powerups and call ApplyAndNotify
